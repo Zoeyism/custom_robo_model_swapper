@@ -1,0 +1,35 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyInterpreterInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <list>
+          <option value="queenDemise.K_w" />
+          <option value="queenDemise.K_DOWN" />
+          <option value="queenDemise.K_s" />
+          <option value="queenDemise.K_UP" />
+          <option value="queenDemise.K_SPACE" />
+          <option value="queenDemise.K_a" />
+          <option value="queenDemise.K_d" />
+          <option value="queenDemise.K_p" />
+          <option value="pygame.QUIT" />
+          <option value="pygame.quit" />
+          <option value="pygame.KEYDOWN" />
+          <option value="pygame.K_RETURN" />
+          <option value="pygame.KEYUP" />
+          <option value="pygame.mask" />
+          <option value="pygame.init" />
+          <option value="queenDemise.Anim_Sprite.*" />
+          <option value="game_maps.Anim_Sprite" />
+          <option value="queenDemise.K_b" />
+          <option value="queenDemise.K_v" />
+          <option value="extraFunctions.*" />
+          <option value="og_qd_dialogue.*" />
+          <option value="sprite_classes.*" />
+          <option value="extra_functions.*" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>
