@@ -4,15 +4,19 @@ import PySimpleGUI as GUI
 
 
 def open_sfd(file_name):
-    # Opens an SFD file and returns the data as a Byte Array.
-    #
-    # Opens a .BIN file and converts file data into a
-    #   byte array, and returns it.
+    """
+    Opens an SFD file (AKA, a BIN file with "SFD " in the first four bytes).
+    Returns the data as a Byte Array. Does NOT check if "SFD " is at start!
+    :param file_name: File's name and directory, string.
+    :return: Byte Array of file's data. If file_name is not found, returns None instead.
+    """
 
     try:
         file = open(file_name, "rb")
     except FileNotFoundError:
         file = None
+        return file
+
     # SFD (StudioFake Data) files start with 4 bytes: SFD, and a space.
     file_data = file.read()
     file.close()
@@ -25,8 +29,13 @@ def open_sfd(file_name):
 
 
 def get_uint32(byte_list, index=0):
-    # Takes a list of bytes, the index you wish to start at, and then reads
-    # the 4 bytes from your starting index onward in Big Endian format.
+    """
+    Takes a list of bytes, the index you wish to start at, and then reads
+    the 4 bytes from your starting index onward in Big Endian format.
+    :param byte_list: The byte list.
+    :param index: Index that your uint32 starts at.
+    :return: Converted value from Big Endian format. If index is invalid, returns None instead.
+    """
     try:
         value = int.from_bytes(byte_list[index:(index + 4)], 'big')
     except IndexError:
@@ -35,6 +44,12 @@ def get_uint32(byte_list, index=0):
 
 
 def print_object_locations(file_data):
+    """
+    Prints locations of objects in an SFD file. Used in development
+    :param file_data: Full SFD file loaded in binary format.
+    :return: None
+    """
+    # Bytes 4-8 are an uint32 that refers to how many 'objects' are in the file.
     total_objects = get_uint32(file_data[4:8], 0)
 
     model_offsets = []
@@ -64,8 +79,13 @@ def print_object_locations(file_data):
 
 
 def is_model_smaller(model_one, model_two):
-    # Checks if first model is smaller than (or = to) first model;
-    # Returns bool based on that check.
+    """
+    Checks if first model is smaller than (or = to) first model;
+    Returns bool from that check.
+    :param model_one: First model's file path, string. INCLUDE DIRECTORY.
+    :param model_two: Second model's file path, string. INCLUDE DIRECTORY.
+    :return: Bool; True if first model is smaller or equal to second, False otherwise.
+    """
 
     size_one = os.path.getsize(model_one)
     size_two = os.path.getsize(model_two)
@@ -79,7 +99,11 @@ def is_model_smaller(model_one, model_two):
 
 
 def get_file_names(directory="models"):
-    # Returns all files in models folder, as list of strings.
+    """
+    Returns all files in models folder, as a list of strings.
+    :param directory: Directory to get files from. String.
+    :return: List of strings, all of a folder's file names sorted.
+    """
 
     all_files = []
 
@@ -93,9 +117,16 @@ def get_file_names(directory="models"):
 
 
 def write_bytes_to_file(byte_array, name_of_file, file_type=".BIN"):
-    # Writes file data to the name of the file, but in the result_files folder.
-    # If the file already exists in that folder, the file name is appended with
-    # (1) or a higher number until it is a new file name.
+    """
+    Writes file data to the name of the file, but in the result_files folder.
+    If the file already exists in that folder, the file name is appended with
+    (1) or a higher number until it is a new file name.
+    :param byte_array: An array of bytes.
+    :param name_of_file: File's name, without directory; uses "result_files" directory.
+    :param file_type: String of characters for file's identifier. Includes ".", like in ".BIN".
+    :return: None
+    """
+
     folder_files = get_file_names("result_files")
 
     num = 1
@@ -113,6 +144,13 @@ def write_bytes_to_file(byte_array, name_of_file, file_type=".BIN"):
 
 
 def replace_models(file_names, target_names, new_names):
+    """
+    Full process of replacing models in selected files.
+    :param file_names: List of file names (strings), which each include their directory!
+    :param target_names: List of models to be replaced; strings, names from the 'models' folder, no directory!
+    :param new_names: List of models to put in game; strings, names from the 'models' folder, no directory!
+    :return: None
+    """
     for i in range(0, len(file_names)):
         # Opens the file and reads all data as a byte array.
         name_of_file = file_names[i]
@@ -126,9 +164,7 @@ def replace_models(file_names, target_names, new_names):
 
         # Confirms # of models to replace;
         #   if unequal # of models, goes with lower # to prevent index errors
-        model_num = len(target_names)
-        if model_num > len(new_names):
-            model_num = len(new_names)
+        model_num = min(len(target_names), len(new_names))
 
         for j in range(0, model_num):
             target_data = open_sfd(
@@ -152,7 +188,7 @@ def replace_models(file_names, target_names, new_names):
                 current_index = target_index + 128  # moves index beyond to continue search
                 target_length = get_uint32(target_data[4:8])
 
-                print(target_index)
+                # print(target_index)
 
                 new_file[target_index:(target_index + len(new_model))] = new_model[:]
 
@@ -167,6 +203,14 @@ def replace_models(file_names, target_names, new_names):
 
 
 def find_texture_data(model_name, directory="models", robo=False, weapon=False):
+    """
+    Finds a model's texture index location.
+    :param model_name: Model's name, string.
+    :param directory: Model's directory, string.
+    :param robo: Bool, if the model is a robo. For correctly determining index location.
+    :param weapon: Bool, if the model is a weapon. For correctly determining index location.
+    :return: None
+    """
     model = open_sfd(os.path.join(directory, model_name))
 
     if not robo:
@@ -185,16 +229,17 @@ def find_texture_data(model_name, directory="models", robo=False, weapon=False):
 
     image_index = get_uint32(model, img_header_index) + 64
 
-    # Image end index
+    # Image end index; varies for unclear reasons, consistent among types of model (weapon, pod, robo, etc.)
     if not weapon:
         image_end_index = get_uint32(model, 8) + 64
-        #image_end_index = get_uint32(model, 8) + 48  # For Pods, is the exact image_end_index, not a pointer
+        # image_end_index = get_uint32(model, 8) + 48  # For Pods, is the exact image_end_index, not a pointer
     else:
         image_end_index = get_uint32(model, 24) + 36
     image_end_index = get_uint32(model, image_end_index) + 64
 
     image_data = model[image_index:image_end_index]
 
+    # Creates new header for texture file to create a proper TPL image.
     new_bin_data = bytearray(bytes.fromhex('00 20 AF 30 00 00 00 01 00 00 00 0C 00 00 00 14 00 00 00 00'))
     new_bin_data += length
     new_bin_data += width
@@ -207,6 +252,13 @@ def find_texture_data(model_name, directory="models", robo=False, weapon=False):
 
 
 def split_sfd(file_name, directory="source_files"):
+    """
+    Splits an SFD file into separate objects. Gets each object from the set of pointers at the beginning
+    of the file to determine each object's start, and length, and creates individual files for each object.
+    :param file_name: File's name, string.
+    :param directory: File's directory, also string.
+    :return: None
+    """
     file_data = open_sfd(os.path.join(directory, file_name))
 
     objects = get_uint32(file_data, 4)
@@ -219,6 +271,13 @@ def split_sfd(file_name, directory="source_files"):
 
 
 def check_index(new_index, some_list):
+    """
+    Checks to make sure that the index is within the list's length to prevent errors.
+    Shifts to 0 if less than 0, shifts to length-1 if over length.
+    :param new_index: Index to be checked
+    :param some_list: List to be compared with
+    :return: Index that is valid for said list
+    """
     if new_index < 0:
         new_index = len(some_list) - 1
     elif new_index >= len(some_list):
@@ -352,28 +411,36 @@ def main():
             index = selected_models_one.index(remove_option_one)
             new_index = check_index(index - 1, selected_models_one)
 
-            selected_models_one[new_index], selected_models_one[index] = selected_models_one[index], selected_models_one[new_index]
+            # Switching the values in each index (Probably should have written a function, but meh)
+            selected_models_one[new_index], selected_models_one[index] = \
+                selected_models_one[index], selected_models_one[new_index]
             selected_menu_one.update(values=selected_models_one, set_to_index=index-1)
 
         if event == "UP_TWO" and remove_option_two in selected_models_two:
             index = selected_menu_two.get_indexes()[0]
             new_index = check_index(index - 1, selected_models_two)
 
-            selected_models_two[new_index], selected_models_two[index] = selected_models_two[index], selected_models_two[new_index]
+            # Switching the values in each index
+            selected_models_two[new_index], selected_models_two[index] = \
+                selected_models_two[index], selected_models_two[new_index]
             selected_menu_two.update(values=selected_models_two, set_to_index=new_index)
 
         if event == "DOWN_ONE" and remove_option_one in selected_models_one:
             index = selected_models_one.index(remove_option_one)
             new_index = check_index(index + 1, selected_models_one)
 
-            selected_models_one[new_index], selected_models_one[index] = selected_models_one[index], selected_models_one[new_index]
+            # Switching the values in each index
+            selected_models_one[new_index], selected_models_one[index] = \
+                selected_models_one[index], selected_models_one[new_index]
             selected_menu_one.update(values=selected_models_one, set_to_index=new_index)
 
         if event == "DOWN_TWO" and remove_option_two in selected_models_two:
             index = selected_menu_two.get_indexes()[0]
             new_index = check_index(index + 1, selected_models_two)
 
-            selected_models_two[new_index], selected_models_two[index] = selected_models_two[index], selected_models_two[new_index]
+            # Switching the values in each index
+            selected_models_two[new_index], selected_models_two[index] = \
+                selected_models_two[index], selected_models_two[new_index]
             selected_menu_two.update(values=selected_models_two, set_to_index=new_index)
 
         if event == "SWAP":
