@@ -316,15 +316,14 @@ def main():
             remove_option_two = values["SLCT_MENU_TWO"][0]
 
         if event == "ADD_ONE" and add_option_one in model_options_one:
+            new_index = check_index(model_options_one.index(add_option_one) - 1, model_options_one)
             model_options_one.remove(add_option_one)
             selected_models_one.append(add_option_one)
-            char_menu_one.update(values=model_options_one)
+            char_menu_one.update(values=model_options_one, set_to_index=new_index)
             selected_menu_one.update(values=selected_models_one)
 
         if event == "ADD_TWO" and add_option_two in model_options_two:
-            model_options_two.remove(add_option_two)
             selected_models_two.append(add_option_two)
-            char_menu_two.update(values=model_options_two)
             selected_menu_two.update(values=selected_models_two)
 
         if event == "REM_ONE" and remove_option_one in selected_models_one:
@@ -335,10 +334,8 @@ def main():
             selected_menu_one.update(values=selected_models_one)
 
         if event == "REM_TWO" and remove_option_two in selected_models_two:
-            selected_models_two.remove(remove_option_two)
-            model_options_two.append(remove_option_two)
-            model_options_two.sort()
-            char_menu_two.update(values=model_options_two)
+            index = selected_menu_two.get_indexes()[0]
+            selected_models_two.pop(index)
             selected_menu_two.update(values=selected_models_two)
 
         if event == "UP_ONE" and remove_option_one in selected_models_one:
@@ -349,7 +346,7 @@ def main():
             selected_menu_one.update(values=selected_models_one, set_to_index=index-1)
 
         if event == "UP_TWO" and remove_option_two in selected_models_two:
-            index = selected_models_two.index(remove_option_two)
+            index = selected_menu_two.get_indexes()[0]
             new_index = check_index(index - 1, selected_models_two)
 
             selected_models_two[new_index], selected_models_two[index] = selected_models_two[index], selected_models_two[new_index]
@@ -363,12 +360,11 @@ def main():
             selected_menu_one.update(values=selected_models_one, set_to_index=new_index)
 
         if event == "DOWN_TWO" and remove_option_two in selected_models_two:
-            index = selected_models_two.index(remove_option_two)
+            index = selected_menu_two.get_indexes()[0]
             new_index = check_index(index + 1, selected_models_two)
 
             selected_models_two[new_index], selected_models_two[index] = selected_models_two[index], selected_models_two[new_index]
             selected_menu_two.update(values=selected_models_two, set_to_index=new_index)
-
 
     window.close()
 
