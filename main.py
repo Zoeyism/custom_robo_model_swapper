@@ -1,5 +1,5 @@
 import os
-import sys
+
 import PySimpleGUI as GUI
 
 
@@ -64,13 +64,13 @@ def print_object_locations(file_data):
 
 
 def is_model_smaller(model_one, model_two):
-    # Checks if second model is smaller than (or = to) first model;
+    # Checks if first model is smaller than (or = to) first model;
     # Returns bool based on that check.
 
     size_one = os.path.getsize(model_one)
     size_two = os.path.getsize(model_two)
 
-    if size_one >= size_two:
+    if size_one <= size_two:
         boolean = True
     else:
         boolean = False
@@ -243,8 +243,11 @@ def main():
     remove_button_two = GUI.Button("Remove", key="REM_TWO")
     up_button_one = GUI.Button("Move Up", key="UP_ONE")
     up_button_two = GUI.Button("Move Up", key="UP_TWO")
-    down_button_one = GUI.Button("Move Down", key = "DOWN_ONE")
+    down_button_one = GUI.Button("Move Down", key="DOWN_ONE")
     down_button_two = GUI.Button("Move Down", key="DOWN_TWO")
+
+    swap_models_button = GUI.Button("Swap Models", key="SWAP")
+    error_text = GUI.Text("", text_color="red", key="ERROR_TEXT")
 
     # File names, are set when option is selected in a menu
     add_option_one, add_option_two, remove_option_one, remove_option_two = "", "", "", ""
@@ -284,7 +287,7 @@ def main():
     column_one = [[box_header_one], [char_menu_one], [add_button_one, remove_button_one], [selected_menu_one],
                   [up_button_one, down_button_one]]
     column_two = [[box_header_two], [char_menu_two], [add_button_two, remove_button_two], [selected_menu_two],
-                  [up_button_two, down_button_two]]
+                  [up_button_two, down_button_two], [swap_models_button]]
 
     window = GUI.Window(
         title="Custom Robo Model Swapper",
@@ -293,6 +296,9 @@ def main():
                 GUI.Column(column_one),
                 GUI.VSeparator(),
                 GUI.Column(column_two)
+            ],
+            [
+                error_text
             ]
         ],
         margins=(400, 200)
@@ -365,6 +371,24 @@ def main():
 
             selected_models_two[new_index], selected_models_two[index] = selected_models_two[index], selected_models_two[new_index]
             selected_menu_two.update(values=selected_models_two, set_to_index=new_index)
+
+        if event == "SWAP":
+            error_text.update(value="")
+            if len(selected_models_two) != len(selected_models_one):
+                error_text.update(value="Error: Not enough models selected, double check selections!")
+            else:
+                for i in range(0, len(selected_models_one)):
+                    # Check to make sure each new model is smaller than the source model #
+                    if is_model_smaller(os.path.join("models", selected_models_one[i]),
+                                        os.path.join("models", selected_models_two[i])):
+                        error_text.update(
+                            value="Error: {} is larger than {}, cannot be swapped!".format(selected_models_two[i],
+                                                                                           selected_models_one[i]))
+                        break
+
+                # If event gets to this point, then all checks are satisfied and swap can begin. #
+
+
 
     window.close()
 
