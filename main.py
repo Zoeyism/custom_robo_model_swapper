@@ -303,16 +303,16 @@ def main():
         if event == GUI.WIN_CLOSED:
             break
 
-        if event == "CHAR_MENU_ONE":
+        if event == "CHAR_MENU_ONE" and len(model_options_one) > 0:
             add_option_one = values["CHAR_MENU_ONE"][0]  # File name that was selected
 
-        if event == "CHAR_MENU_TWO":
+        if event == "CHAR_MENU_TWO" and len(model_options_two) > 0:
             add_option_two = values["CHAR_MENU_TWO"][0]
 
-        if event == "SLCT_MENU_ONE":
+        if event == "SLCT_MENU_ONE" and len(selected_models_one) > 0:
             remove_option_one = values["SLCT_MENU_ONE"][0]
 
-        if event == "SLCT_MENU_TWO":
+        if event == "SLCT_MENU_TWO" and len(selected_models_two) > 0:
             remove_option_two = values["SLCT_MENU_TWO"][0]
 
         if event == "ADD_ONE" and add_option_one in model_options_one:
