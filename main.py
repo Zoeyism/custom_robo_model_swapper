@@ -218,8 +218,17 @@ def split_sfd(file_name, directory="source_files"):
         write_bytes_to_file(file_data[index:(index + length)], "Object " + str(i) + ".BIN")
 
 
+def check_index(new_index, some_list):
+    if new_index < 0:
+        new_index = len(some_list) - 1
+    elif new_index >= len(some_list):
+        new_index = 0
+    return new_index
+
+
 def main():
     files = ["rpg_t_models.BIN", "rpg_f_models.BIN"]
+
     model_names = list(get_file_names())
     model_options_one = model_names.copy()
     model_options_two = model_names.copy()
@@ -232,6 +241,13 @@ def main():
     add_button_two = GUI.Button("Add", key="ADD_TWO")
     remove_button_one = GUI.Button("Remove", key="REM_ONE")
     remove_button_two = GUI.Button("Remove", key="REM_TWO")
+    up_button_one = GUI.Button("Move Up", key="UP_ONE")
+    up_button_two = GUI.Button("Move Up", key="UP_TWO")
+    down_button_one = GUI.Button("Move Down", key = "DOWN_ONE")
+    down_button_two = GUI.Button("Move Down", key="DOWN_TWO")
+
+    # File names, are set when option is selected in a menu
+    add_option_one, add_option_two, remove_option_one, remove_option_two = "", "", "", ""
 
     char_menu_one = GUI.Listbox(
         model_options_one,
@@ -265,8 +281,10 @@ def main():
         key="SLCT_MENU_TWO"
     )
 
-    column_one = [[box_header_one], [char_menu_one], [add_button_one, remove_button_one], [selected_menu_one]]
-    column_two = [[box_header_two], [char_menu_two], [add_button_two, remove_button_two], [selected_menu_two]]
+    column_one = [[box_header_one], [char_menu_one], [add_button_one, remove_button_one], [selected_menu_one],
+                  [up_button_one, down_button_one]]
+    column_two = [[box_header_two], [char_menu_two], [add_button_two, remove_button_two], [selected_menu_two],
+                  [up_button_two, down_button_two]]
 
     window = GUI.Window(
         title="Custom Robo Model Swapper",
@@ -277,9 +295,8 @@ def main():
                 GUI.Column(column_two)
             ]
         ],
-        margins=(400, 200))
-
-    add_option_one, add_option_two, remove_option_one, remove_option_two = "", "", "", ""
+        margins=(400, 200)
+    )
 
     while True:  # WINDOW LOOP #
         event, values = window.read()
@@ -323,6 +340,34 @@ def main():
             model_options_two.sort()
             char_menu_two.update(values=model_options_two)
             selected_menu_two.update(values=selected_models_two)
+
+        if event == "UP_ONE" and remove_option_one in selected_models_one:
+            index = selected_models_one.index(remove_option_one)
+            new_index = check_index(index - 1, selected_models_one)
+
+            selected_models_one[new_index], selected_models_one[index] = selected_models_one[index], selected_models_one[new_index]
+            selected_menu_one.update(values=selected_models_one, set_to_index=index-1)
+
+        if event == "UP_TWO" and remove_option_two in selected_models_two:
+            index = selected_models_two.index(remove_option_two)
+            new_index = check_index(index - 1, selected_models_two)
+
+            selected_models_two[new_index], selected_models_two[index] = selected_models_two[index], selected_models_two[new_index]
+            selected_menu_two.update(values=selected_models_two, set_to_index=new_index)
+
+        if event == "DOWN_ONE" and remove_option_one in selected_models_one:
+            index = selected_models_one.index(remove_option_one)
+            new_index = check_index(index + 1, selected_models_one)
+
+            selected_models_one[new_index], selected_models_one[index] = selected_models_one[index], selected_models_one[new_index]
+            selected_menu_one.update(values=selected_models_one, set_to_index=new_index)
+
+        if event == "DOWN_TWO" and remove_option_two in selected_models_two:
+            index = selected_models_two.index(remove_option_two)
+            new_index = check_index(index + 1, selected_models_two)
+
+            selected_models_two[new_index], selected_models_two[index] = selected_models_two[index], selected_models_two[new_index]
+            selected_menu_two.update(values=selected_models_two, set_to_index=new_index)
 
 
     window.close()
