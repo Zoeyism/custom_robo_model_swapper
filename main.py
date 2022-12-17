@@ -218,19 +218,114 @@ def split_sfd(file_name, directory="source_files"):
         write_bytes_to_file(file_data[index:(index + length)], "Object " + str(i) + ".BIN")
 
 
-def window():
-
-
-
 def main():
     files = ["rpg_t_models.BIN", "rpg_f_models.BIN"]
-    model_names = get_file_names()
+    model_names = list(get_file_names())
+    model_options_one = model_names.copy()
+    model_options_two = model_names.copy()
+    selected_models_one = []
+    selected_models_two = []
 
-    replace_models(files, [model_names[2]], [model_names[57]])
+    box_header_one = GUI.Text("In-Game Character Selection")
+    box_header_two = GUI.Text("Model to Replace Selection With")
+    add_button_one = GUI.Button("Add", key="ADD_ONE")
+    add_button_two = GUI.Button("Add", key="ADD_TWO")
+    remove_button_one = GUI.Button("Remove", key="REM_ONE")
+    remove_button_two = GUI.Button("Remove", key="REM_TWO")
+
+    char_menu_one = GUI.Listbox(
+        model_options_one,
+        select_mode=GUI.LISTBOX_SELECT_MODE_SINGLE,
+        size=(40, 10),
+        enable_events=True,
+        key="CHAR_MENU_ONE"
+    )
+
+    char_menu_two = GUI.Listbox(
+        model_options_two,
+        select_mode=GUI.LISTBOX_SELECT_MODE_SINGLE,
+        size=(40, 10),
+        enable_events=True,
+        key="CHAR_MENU_TWO"
+    )
+
+    selected_menu_one = GUI.Listbox(
+        selected_models_one,
+        select_mode=GUI.LISTBOX_SELECT_MODE_SINGLE,
+        size=(40, 10),
+        enable_events=True,
+        key="SLCT_MENU_ONE"
+    )
+
+    selected_menu_two = GUI.Listbox(
+        selected_models_two,
+        select_mode=GUI.LISTBOX_SELECT_MODE_SINGLE,
+        size=(40, 10),
+        enable_events=True,
+        key="SLCT_MENU_TWO"
+    )
+
+    column_one = [[box_header_one], [char_menu_one], [add_button_one, remove_button_one], [selected_menu_one]]
+    column_two = [[box_header_two], [char_menu_two], [add_button_two, remove_button_two], [selected_menu_two]]
+
+    window = GUI.Window(
+        title="Custom Robo Model Swapper",
+        layout=[
+            [
+                GUI.Column(column_one),
+                GUI.VSeparator(),
+                GUI.Column(column_two)
+            ]
+        ],
+        margins=(400, 200))
+
+    add_option_one, add_option_two, remove_option_one, remove_option_two = "", "", "", ""
+
+    while True:  # WINDOW LOOP #
+        event, values = window.read()
+        if event == GUI.WIN_CLOSED:
+            break
+
+        if event == "CHAR_MENU_ONE":
+            add_option_one = values["CHAR_MENU_ONE"][0]  # File name that was selected
+
+        if event == "CHAR_MENU_TWO":
+            add_option_two = values["CHAR_MENU_TWO"][0]
+
+        if event == "SLCT_MENU_ONE":
+            remove_option_one = values["SLCT_MENU_ONE"][0]
+
+        if event == "SLCT_MENU_TWO":
+            remove_option_two = values["SLCT_MENU_TWO"][0]
+
+        if event == "ADD_ONE" and add_option_one in model_options_one:
+            model_options_one.remove(add_option_one)
+            selected_models_one.append(add_option_one)
+            char_menu_one.update(values=model_options_one)
+            selected_menu_one.update(values=selected_models_one)
+
+        if event == "ADD_TWO" and add_option_two in model_options_two:
+            model_options_two.remove(add_option_two)
+            selected_models_two.append(add_option_two)
+            char_menu_two.update(values=model_options_two)
+            selected_menu_two.update(values=selected_models_two)
+
+        if event == "REM_ONE" and remove_option_one in selected_models_one:
+            selected_models_one.remove(remove_option_one)
+            model_options_one.append(remove_option_one)
+            model_options_one.sort()
+            char_menu_one.update(values=model_options_one)
+            selected_menu_one.update(values=selected_models_one)
+
+        if event == "REM_TWO" and remove_option_two in selected_models_two:
+            selected_models_two.remove(remove_option_two)
+            model_options_two.append(remove_option_two)
+            model_options_two.sort()
+            char_menu_two.update(values=model_options_two)
+            selected_menu_two.update(values=selected_models_two)
 
 
-
-
+    window.close()
 
 
 if __name__ == "__main__":
