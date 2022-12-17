@@ -1,5 +1,5 @@
 import os
-
+import base64
 import PySimpleGUI as GUI
 
 
@@ -350,6 +350,10 @@ def main():
     column_two = [[box_header_two], [char_menu_two], [add_button_two, remove_button_two], [selected_menu_two],
                   [up_button_two, down_button_two]]
 
+    icon_file = open("icon.txt", "r")
+    icon_data = base64.b64decode(icon_file.read())
+    icon_file.close()
+
     window = GUI.Window(
         title="Custom Robo Model Swapper",
         layout=[
@@ -364,7 +368,8 @@ def main():
                 error_text
             ]
         ],
-        margins=(100, 50)
+        margins=(100, 50),
+        icon=icon_data
     )
 
     while True:  # WINDOW LOOP #
