@@ -228,6 +228,7 @@ def check_index(new_index, some_list):
 
 def main():
     files = ["rpg_t_models.BIN", "rpg_f_models.BIN"]
+    GUI.theme("Dark Purple")
 
     model_names = list(get_file_names())
     model_options_one = model_names.copy()
@@ -248,6 +249,7 @@ def main():
 
     swap_models_button = GUI.Button("Swap Models", key="SWAP")
     error_text = GUI.Text("", text_color="red", key="ERROR_TEXT")
+    success_text = GUI.Text("", text_color="green", key="SUCCESS_TEXT")
 
     # File names, are set when option is selected in a menu
     add_option_one, add_option_two, remove_option_one, remove_option_two = "", "", "", ""
@@ -287,7 +289,7 @@ def main():
     column_one = [[box_header_one], [char_menu_one], [add_button_one, remove_button_one], [selected_menu_one],
                   [up_button_one, down_button_one]]
     column_two = [[box_header_two], [char_menu_two], [add_button_two, remove_button_two], [selected_menu_two],
-                  [up_button_two, down_button_two], [swap_models_button]]
+                  [up_button_two, down_button_two]]
 
     window = GUI.Window(
         title="Custom Robo Model Swapper",
@@ -298,10 +300,12 @@ def main():
                 GUI.Column(column_two)
             ],
             [
+                swap_models_button,
+                success_text,
                 error_text
             ]
         ],
-        margins=(400, 200)
+        margins=(100, 50)
     )
 
     while True:  # WINDOW LOOP #
@@ -374,9 +378,11 @@ def main():
 
         if event == "SWAP":
             error_text.update(value="")
-            if len(selected_models_two) != len(selected_models_one):
+            success_text.update(value="")
+            if len(selected_models_two) != len(selected_models_one) or 0 == len(selected_models_one):
                 error_text.update(value="Error: Not enough models selected, double check selections!")
             else:
+                selections_valid = True
                 for i in range(0, len(selected_models_one)):
                     # Check to make sure each new model is smaller than the source model #
                     if is_model_smaller(os.path.join("models", selected_models_one[i]),
@@ -384,11 +390,11 @@ def main():
                         error_text.update(
                             value="Error: {} is larger than {}, cannot be swapped!".format(selected_models_two[i],
                                                                                            selected_models_one[i]))
-                        break
-
-                # If event gets to this point, then all checks are satisfied and swap can begin. #
-
-
+                        selections_valid = False
+                if selections_valid:
+                    # If event gets to this point, then all checks are satisfied and swap can begin. #
+                    replace_models(files, selected_models_one, selected_models_two)
+                    success_text.update(value="Models Successfully Swapped!")
 
     window.close()
 
