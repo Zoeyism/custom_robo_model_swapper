@@ -286,7 +286,8 @@ def check_index(new_index, some_list):
 
 
 def main():
-    files = ["rpg_t_models.BIN", "rpg_f_models.BIN"]
+    files_characters = ["rpg_t_models.BIN", "rpg_f_models.BIN"]
+    files_robos = ["chara.BIN"]
     GUI.theme("Dark Purple")
 
     model_names = list(get_file_names())
@@ -345,10 +346,20 @@ def main():
         key="SLCT_MENU_TWO"
     )
 
-    column_one = [[box_header_one], [char_menu_one], [add_button_one, remove_button_one], [selected_menu_one],
-                  [up_button_one, down_button_one]]
-    column_two = [[box_header_two], [char_menu_two], [add_button_two, remove_button_two], [selected_menu_two],
-                  [up_button_two, down_button_two]]
+    column_one = [
+        [box_header_one],
+        [char_menu_one],
+        [add_button_one, remove_button_one],
+        [selected_menu_one],
+        [up_button_one, down_button_one]
+    ]
+    column_two = [
+        [box_header_two],
+        [char_menu_two],
+        [add_button_two, remove_button_two],
+        [selected_menu_two],
+        [up_button_two, down_button_two]
+    ]
 
     icon_file = open("icon.txt", "r")
     icon_data = base64.b64decode(icon_file.read())
@@ -372,8 +383,17 @@ def main():
         icon=icon_data
     )
 
+    new_files = []
+
+    file_setting = "char"
+
     while True:  # WINDOW LOOP #
         event, values = window.read()
+        if file_setting == "char":
+            new_files = files_characters
+        if file_setting == "robo":
+            new_files = files_robos
+
         if event == GUI.WIN_CLOSED:
             break
 
@@ -465,8 +485,8 @@ def main():
                         selections_valid = False
                 if selections_valid:
                     # If event gets to this point, then all checks are satisfied and swap can begin. #
-                    replace_models(files, selected_models_one, selected_models_two)
-                    success_text.update(value="Models Successfully Swapped!")
+                    replace_models(new_files, selected_models_one, selected_models_two)
+                    success_text.update(value=("Models Successfully Swapped! Saved to " + str(new_files[:])))
 
     window.close()
 
