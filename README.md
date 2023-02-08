@@ -1,4 +1,4 @@
-# custom_robo_model_swapper
+# The Custom Robo Model Swapper
 Model swapper for Custom Robo for the Gamecube!
 
 This is an app designed to allow people to give different characters different models in Custom Robo for the GameCube. 
