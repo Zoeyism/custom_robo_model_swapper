@@ -28,4 +28,5 @@ Usage instructions:
   7. Replace the two files inside that folder that have the same names as the app-created files. Save your changes.
   8. You're done! All gameplay and in-game cutscenes will have that character replaced with your selected model.
   
-  Let me know about any issues or bugs that come up!
+Let me know about any issues or bugs that come up!
+Thanks to the developer of PySimpleGUI for making it easy to make this app!
